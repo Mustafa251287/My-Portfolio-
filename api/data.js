@@ -15,17 +15,11 @@ export default async function handler(request, response) {
       });
     }
 
-    // 2. Safely parse JSON (handles cases where API returns non-JSON)
-    const text = await result.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (parseError) {
-      console.error("Failed to parse JSON:", text);
-      return response.status(502).json({ error: "Upstream API returned invalid JSON" });
-    }
+    // 1. Parse the JSON body from the upstream response
+const data = await result.json();
 
-    return response.status(200).json(data);
+// 2. Return the parsed data to your client
+return response.status(200).json(data);
   } catch (error) {
     // 3. Log the actual error to Vercel Runtime Logs
     console.error("Function error:", error);
