@@ -1,31 +1,44 @@
-export default async function handler(request, response) {
+export default async function handler(req, res) {
   try {
-    // 1. Check if the environment variable exists
-    if (!process.env.UPSTREAM_API_URL) {
-      console.error("CRITICAL: UPSTREAM_API_URL is not defined");
-      return response.status(500).json({ error: "Server configuration error" });
-    }
+    const url = process.env.UPSTREAM_API_URL;
 
-    const result = await fetch(process.env.UPSTREAM_API_URL);
+    const response = await fetch(url, {
+      headers: {
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+      },
+    });
 
-    if (!result.ok) {
-      return response.status(502).json({
-        error: "API request failed",
-        status: result.status
+    const raw = await response.text();
+
+    console.log("Upstream status:", response.status);
+    console.log("Upstream URL:", response.url);
+    console.log(
+      "Upstream cache headers:",
+      Object.fromEntries(response.headers.entries())
+    );
+    console.log("Upstream body:", raw);
+
+    if (!response.ok) {
+      return res.status(502).json({
+        error: "Upstream request failed",
+        status: response.status,
       });
     }
 
-    // 1. Parse the JSON body from the upstream response
-const data = await result.json();
+    res.setHeader(
+      "Cache-Control",
+      "no-store, max-age=0"
+    );
 
-// 2. Return the parsed data to your client
-return response.status(200).json(data);
+    res.setHeader("X-Debug-Fetch-Time", new Date().toISOString());
+
+    return res.status(200).send(raw);
   } catch (error) {
-    // 3. Log the actual error to Vercel Runtime Logs
-    console.error("Function error:", error);
-    return response.status(500).json({
-      error: "Internal server error",
-      details: error.message // Temporarily expose for debugging
+    console.error("Fetch error:", error);
+
+    return res.status(500).json({
+      error: "Failed to fetch upstream JSON",
     });
   }
 }
