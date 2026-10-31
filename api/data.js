@@ -8,10 +8,6 @@ export default async function handler(request, response) {
 
     const result = await fetch(process.env.UPSTREAM_API_URL ,{
   cache: "no-store",
-  headers: {
-    "Cache-Control": "no-cache, no-store",
-    "Pragma": "no-cache",
-  },
 });
 
     if (!result.ok) {
