@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic API Form</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px 15px;
+        }
+
+        .form-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: #222;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input,
+        textarea {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #007bff;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 6px;
+            background: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background: #0056b3;
+        }
+
+        .submit-btn:disabled {
+            background: #888;
+            cursor: not-allowed;
+        }
+
+        #message {
+            margin-top: 15px;
+            white-space: pre-wrap;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: #d00;
+        }
+    
+    .disabled {
+    background-color: #f5f5f5; /* Light gray background */
+    color: #a8a8a8;             /* Muted gray text */
+    border: 1px solid #dcdcdc;  /* Soft border */
+    cursor: not-allowed;        /* Shows the blocked/not-allowed cursor on hover */
+    opacity: 1;                 /* Ensures consistency across browsers like Safari */
+}
+    </style>
+</head>
+
+<body>
+
+    <div class="form-container">
+        <h2>Update Profile</h2>
+
+        <!-- Fields will be generated dynamically -->
+        <form id="dynamicForm"></form>
+
+        <p id="message" role="status" aria-live="polite"></p>
+    </div>
+
+    <script>
+        // Replace these URLs with your actual API endpoints.
+        const GET_API_URL = "https://api.jsonstorage.net/v1/json/1362481f-7239-4fc1-8632-e2c6b9c96ce6/319f57f3-a18e-44e8-acec-bec995705481";
+        const POST_API_URL = "https://iknowimawesome.vercel.app/api/upload";
+
+        const form = document.getElementById("dynamicForm");
+        const message = document.getElementById("message");
+      
+        let originalData = {};
+
+        const updatedData = {};
+
+        // Convert JSON keys into readable labels.
+        function formatLabel(key) {
+            return key
+                .replace(/([a-z])([A-Z])/g, "$1 $2")
+                .replace(/[_-]/g, " ")
+                .replace(/\b\w/g, char => char.toUpperCase());
+        }
+
+        // Determine the input type based on the key.
+        function getInputType(key) {
+            const normalizedKey = key.toLowerCase();
+
+            if (normalizedKey.includes("email")) {
+                return "email";
+            }
+
+            if (
+                normalizedKey.includes("phone") ||
+                normalizedKey.includes("phno") ||
+                normalizedKey.includes("mobile")
+            ) {
+                return "tel";
+            }
+
+            if (
+                normalizedKey.includes("url") ||
+                normalizedKey.includes("github") ||
+                normalizedKey.includes("linkedin") ||
+                normalizedKey.includes("website")
+            ) {
+                return "url";
+            }
+
+            return "text";
+        }
+
+        // Create a form field dynamically.
+        function createField(key, value) {
+            const formGroup = document.createElement("div");
+            formGroup.className = "form-group";
+
+            const label = document.createElement("label");
+            label.htmlFor = key;
+            label.textContent = formatLabel(key);
+
+            let input;
+
+            // Use a textarea for long profile descriptions.
+            if (
+                (typeof value === "string" || typeof value === "object" ) &&
+                (
+                    key.toLowerCase() === "profile" ||
+                    value.length > 200 || key.toLowerCase() === "skills"
+                )
+            ) {
+                input = document.createElement("textarea");
+                
+            } else {
+                input = document.createElement("input");
+                input.type = getInputType(key);
+            }
+
+            input.id = key;
+            input.name = key;
+
+            // Convert array values into comma-separated text.
+            if (Array.isArray(value)) {
+                input.value = value.join(", ");
+            } else if (value !== null && value !== undefined) {
+                input.value = String(value);
+            } else {
+                input.value = "";
+            }
+             input.readOnly=true;
+            input.classList.add("disabled");
+            
+            input.ondblclick = (e)=>{
+                 input.classList.remove("disabled");
+                 e.target.readOnly = false;
+                 e.target.focus();
+                 updatedData[e.target.name]="";
+                 
+                 if(e.target.tagName=== "TEXTAREA"){
+                     e.target.style.height=e.target.scrollHeight+"px";
+                 }
+             }
+
+            formGroup.appendChild(label);
+            formGroup.appendChild(input);
+            
+            return formGroup;
+        }
+
+        // Fetch API data and generate the form.
+        async function loadForm() {
+            message.textContent = "Loading profile...";
+            message.className = "";
+
+            try {
+               const response = await fetch(GET_API_URL,{
+                    cache:"no-store",
+                     });
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Failed to load profile: ${response.status}`
+                    );
+                }
+
+                const data = await response.json();
+
+                if (
+                    !data ||
+                    typeof data !== "object" ||
+                    Array.isArray(data)
+                ) {
+                    throw new Error("The API must return a JSON object.");
+                }
+
+                originalData = data;
+                form.replaceChildren();
+
+                Object.entries(originalData).forEach(([key, value]) => {
+                    form.appendChild(createField(key, value));
+                });
+
+                // Create the submit button dynamically.
+                const submitButton = document.createElement("button");
+
+                submitButton.type = "submit";
+                submitButton.className = "submit-btn";
+                submitButton.textContent = "Update Profile";
+
+                form.appendChild(submitButton);
+
+                message.textContent = "";
+
+            } catch (error) {
+                console.error(error);
+                message.textContent = error.message;
+                message.className = "error";
+            }
+        }
+
+        // Submit the form using PATCH.
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const submitButton = form.querySelector(
+                'button[type="submit"]'
+            );
+
+            if (!submitButton) {
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = "Updating...";
+            message.textContent = "";
+            message.className = "";
+
+            try {
+               // const updatedData = {};
+
+                // Preserve the original data types.
+                for (const [key] of Object.entries(updatedData)) {
+                    const input = form.elements.namedItem(key);
+            
+                    if (!input) {
+                        continue;
+                    }
+                    input.readOnly=true;
+                    input.classList.add("disabled");
+
+                    const value = input.value;
+                    const originalValue = originalData[key];
+                    
+                    if (Array.isArray(originalValue)) {
+                        updatedData[key] = value
+                            .split(",")
+                            .map(item => item.trim())
+                            .filter(Boolean);
+                    } else if (typeof originalValue === "number") {
+                        updatedData[key] =
+                            value.trim() === "" ? null : Number(value);
+
+                        if (
+                            updatedData[key] !== null &&
+                            !Number.isFinite(updatedData[key])
+                        ) {
+                            throw new Error(
+                                `${formatLabel(key)} must be a valid number.`
+                            );
+                        }
+                    } else if (typeof originalValue === "boolean") {
+                        updatedData[key] = value === "true";
+                    } else {
+                        updatedData[key] = value;
+                    }
+                }
+              
+            
+               const response = await fetch(POST_API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Update failed with status ${response.status}`
+                    );
+                }
+
+                // Keep the original values in sync with the latest data.
+                for (const [key,value] of Object.entries(updatedData)) {
+                    originalData[key]=value;
+                }
+
+                message.textContent = "Profile updated successfully!";
+                message.className = "success";
+             
+            } catch (error) {
+                console.error(error);
+                message.textContent = error.message;
+                message.className = "error";
+
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = "Update Profile";
+            } 
+        });
+
+        // Initialize the dynamic form.
+        loadForm();
+    </script>
+
+</body>
+</html>
