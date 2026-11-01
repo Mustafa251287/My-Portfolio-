@@ -229,7 +229,10 @@
             message.className = "";
 
             try {
-               const response = await fetch(GET_API_URL,{
+               const url = new URL(GET_API_URL);
+                url.searchParams.set("_cb", Date.now().toString());
+
+               const response = await fetch(url.toString(),{
                     cache:"no-store",
                      });
 
