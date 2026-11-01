@@ -1,4 +1,4 @@
-<!doctype html>
+  <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -62,6 +62,24 @@ object-fit:cover !important;
   color: #68758f;
   line-height:1.7;
 }
+    
+    /* Full-screen overlay */
+.loader-overlay {
+    position: fixed;
+    inset:0;
+    z-index: 999;
+
+    /* Semi-transparent background + blur */
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* Prevent scrolling while loader is visible */
+body.loading {
+    overflow: hidden;
+    touch-action: none;
+}
     </style>
   </head>
   <body>
@@ -74,8 +92,8 @@ object-fit:cover !important;
             <div class="d-flex align-items-center gap-3">
               <img class="avatar" src="https://drive.google.com/thumbnail?id=1dtUKmy1fDk6oXUY0wqT9yoFFmHVxEZvT&sz=w4000" alt="avatar">
               <div>
-                <h2 class="h5 mb-0">Mohammad Mustafa Ghadai</h2>
-                <div class="muted">Front End Software Engineer</div>
+                <h2 class="h5 mb-0" data-api-field="name">Mohammad Mustafa Ghadai</h2>
+                <div class="muted" data-api-field="position">Front End Software Engineer</div>
                 <small class="d-block mt-2 muted">Based in Mumbai • Open to internships/FullTime Jobs & freelance</small>
               </div>
             </div>
@@ -83,16 +101,16 @@ object-fit:cover !important;
             <hr>
 
             <h3 class="section-title">Profile</h3>
-            <p class="small detail-text">Detail-oriented Front End Software Engineer with practical experience in making pixel perfect web pages using nuxt framework , backend APIs. Strong problem-solving, communication, and coordination skills with a record of delivering projects such as PrintFlow and home automation prototypes. Final‑year project recognized by AICTE for innovation and excellence. Fluent in English and Hindi.</p>
+            <p class="small detail-text" data-api-field="profile">Detail-oriented Front End Software Engineer with practical experience in making pixel perfect web pages using nuxt framework , backend APIs. Strong problem-solving, communication, and coordination skills with a record of delivering projects such as PrintFlow and home automation prototypes. Final‑year project recognized by AICTE for innovation and excellence. Fluent in English and Hindi.</p>
 
             <h3 class="section-title mt-3">Contact</h3>
-           <p class="mb-1"> <span class="contact-pill"> <i class="bi bi-envelope-fill" aria-hidden="true"></i> <a href="mailto:mustafa251287@gmail.com" class="text-decoration-none"> mustafa251287@gmail.com </a> </span> </p> <p class="mb-1"> <span class="contact-pill"> <i class="bi bi-phone-fill" aria-hidden="true"></i> <a href="tel:+918928307917" class="text-decoration-none"> +91 89283 07917 </a> </span> </p> <p class="mb-1"> <span class="contact-pill"> <i class="bi bi-github" aria-hidden="true"></i> <a href="https://github.com/Mustafa251287" target="_blank" rel="noopener noreferrer" class="text-decoration-none"> https://github.com/Mustafa251287 </a> </span> </p> <p class="mb-3"> <span class="contact-pill"> <i class="bi bi-linkedin" aria-hidden="true"></i> <a href="https://www.linkedin.com/in/mohammad-mustafa-ghadai-45783217" target="_blank" rel="noopener noreferrer" class="text-decoration-none"> https://www.linkedin.com/in/mohammad-mustafa-ghadai-45783217 </a> </span> </p>
+           <p class="mb-1"> <span class="contact-pill"> <i class="bi bi-envelope-fill" aria-hidden="true"></i> <a href="mailto:mustafa251287@gmail.com" class="text-decoration-none" data-api-field="email"> mustafa251287@gmail.com </a> </span> </p> <p class="mb-1"> <span class="contact-pill"> <i class="bi bi-phone-fill" aria-hidden="true"></i> <a href="tel:+918928307917" class="text-decoration-none" data-api-field="phno"> +91 89283 07917 </a> </span> </p> <p class="mb-1"> <span class="contact-pill"> <i class="bi bi-github" aria-hidden="true"></i> <a href="https://github.com/Mustafa251287" target="_blank" rel="noopener noreferrer" class="text-decoration-none" data-api-field="github"> https://github.com/Mustafa251287 </a> </span> </p> <p class="mb-3"> <span class="contact-pill"> <i class="bi bi-linkedin" aria-hidden="true"></i> <a href="https://www.linkedin.com/in/mohammad-mustafa-ghadai-45783217" target="_blank" rel="noopener noreferrer" class="text-decoration-none" data-api-field="linkedin"> https://www.linkedin.com/in/mohammad-mustafa-ghadai-45783217 </a> </span> </p>
 
             <hr>
 
             <h3 class="section-title">Skills</h3>
             <div class="d-flex flex-wrap gap-2 mt-2" id="skills-container">
-                <span class="skill-badge">Java</span>
+              <!--     <span class="skill-badge">Java</span>
               <span class="skill-badge">HTML</span>
               <span class="skill-badge">CSS</span>
               <span class="skill-badge">Bootstrap</span>
@@ -103,7 +121,7 @@ object-fit:cover !important;
 <span class="skill-badge">SEO</span>
 <span class="skill-badge">Dynamic Web Development</span>
 <span class="skill-badge">Pixel-Perfect UI</span>
-      <!--    <span class="skill-badge">Python</span>
+         <span class="skill-badge">Python</span>
               <span class="skill-badge">SQL</span>
               <span class="skill-badge">Power Bi</span>-->
             </div>
@@ -270,11 +288,21 @@ object-fit:cover !important;
       </footer>
 
     </div>
+<!-- Loader Overlay -->
+<div id="loaderOverlay"
+     class="loader-overlay justify-content-center align-items-center" style="display: none;">
 
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+
+</div>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       // simple theme toggle
+    const url="https://api.jsonstorage.net/v1/json/1362481f-7239-4fc1-8632-e2c6b9c96ce6/319f57f3-a18e-44e8-acec-bec995705481";
+    
       const toggle = document.getElementById('toggleTheme');
       let dark=false;
       toggle.addEventListener('click', ()=>{
@@ -285,24 +313,6 @@ object-fit:cover !important;
         document.querySelectorAll('.card').forEach(c=>{c.style.background = dark? '#081226' : '#fff'; c.style.color = dark? '#e6eef8' : '#212529';});
       });
     
-    let skills={
-  "skills": [
-    "Java",
-    "HTML",
-    "CSS",
-    "Bootstrap",
-    "Vanilla JS",
-    "Vue.js",
-    "Nuxt.js",
-    "Responsive Web Design",
-    "SEO",
-    "Dynamic Web Development",
-    "Pixel-Perfect UI",
-    "Python",
-    "SQL",
-    "Power BI"
-  ]
-}
     function addSkills(arr){
       if(arr.length==0){
         return;
@@ -318,8 +328,56 @@ object-fit:cover !important;
       });
       
     }
-   //addSkills(skills.skills);
+   
+    
+    function showLoader() {
+    document.getElementById("loaderOverlay").style.display = "flex";
+    document.body.classList.add("loading");
+}
+
+function hideLoader() {
+    document.getElementById("loaderOverlay").style.display = "none";
+    document.body.classList.remove("loading");
+}
+    
+    function getData(){
+      showLoader();
+      const data=fetch(url,{
+        cache:"no-store",
+      })
+                .then(response => response.json())
+                .then(data => {
+                  putData(data);
+                  
+                })
+                .catch((error) => {
+                  console.log("Error encountered "+error);
+                  
+                })
+                .finally(() => {
+                  hideLoader();
+                });
+      
+    }
+    
+    function putData(data){
+      var test=data?.skills ? addSkills(data?.skills):0;
+      document.querySelectorAll("[data-api-field]").forEach(element => {
+        const field=element.dataset.apiField;
+        element.textContent=data[field] ?? "";
+        
+        //Handle Anchor Tags
+        if(element.tagName==="A"){
+          //alert(data[field]);
+        const match=element.getAttribute("href")?.match(/^(mailto:|tel:)/i);
+        element.setAttribute('href',match ? match[0]+data[field] : data[field]);
+        }
+      });   
+    }
+    
+    getData();
     </script>
   </body>
 </html>
-
+  
+  
