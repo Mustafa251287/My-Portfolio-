@@ -1,4 +1,4 @@
-
+// api/login.js
 import cookie from 'cookie';
 
 export default function handler(req, res) {
@@ -9,12 +9,11 @@ export default function handler(req, res) {
 
   const { username, password } = req.body || {};
 
-  // Recommended: Set ADMIN_USER and ADMIN_PASS in your Vercel Project Settings -> Environment Variables
+  // Set ADMIN_USER and ADMIN_PASS in your Vercel Project Settings -> Environment Variables
   const ADMIN_USER = process.env.ADMIN_USER || 'admin';
   const ADMIN_PASS = process.env.ADMIN_PASS || 'secretpassword';
 
   if (username === ADMIN_USER && password === ADMIN_PASS) {
-    // Serialize a secure cookie
     const sessionCookie = cookie.serialize('session', 'authenticated_user', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -24,8 +23,8 @@ export default function handler(req, res) {
     });
 
     res.setHeader('Set-Cookie', sessionCookie);
-    return.status(200).json({ success: true, message: 'Logged in successfully' });
+    return res.status(200).json({ success: true, message: 'Logged in successfully' });
   } else {
-    return.status(401).json({ success: false, error: 'Invalid username or password' });
+    return res.status(401).json({ success: false, error: 'Invalid username or password' });
   }
 }
