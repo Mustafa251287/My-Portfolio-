@@ -1,4 +1,6 @@
 
+import cookie from 'cookie';
+
 export default async function handler(req, res) {
   // Accept only POST requests
   if (req.method !== "POST") {
@@ -6,6 +8,13 @@ export default async function handler(req, res) {
     return res.status(405).json({
       error: "Method not allowed",
     });
+  }
+
+const cookies = cookie.parse(req.headers.cookie || '');
+
+  // Verify session
+  if (cookies.session !== 'authenticated_user') {
+    return.status(401).json({ error: 'Unauthorized: Please log in first' });
   }
 
   // Validate environment variables
