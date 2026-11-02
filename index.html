@@ -342,7 +342,7 @@ function hideLoader() {
     
     function getData(){
       showLoader();
-      const newUrl = new URL(GET_API_URL);
+      const newUrl = new URL(url);
       newUrl.searchParams.set("_cb", Date.now().toString());
       const data=fetch(newUrl.toString(),{
         cache:"no-store",
