@@ -14,7 +14,7 @@ const cookies = cookie.parse(req.headers.cookie || '');
 
   // Verify session
   if (cookies.session !== 'authenticated_user') {
-    return.status(401).json({ error: 'Unauthorized: Please log in first' });
+    return res.status(401).json({ error: 'Unauthorized: Please log in first' });
   }
 
   // Validate environment variables
