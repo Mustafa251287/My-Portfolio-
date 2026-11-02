@@ -10,8 +10,8 @@ export default function handler(req, res) {
   const { username, password } = req.body || {};
 
   // Recommended: Set ADMIN_USER and ADMIN_PASS in your Vercel Project Settings -> Environment Variables
-  const ADMIN_USER = process.env.ADMIN_USER;
-  const ADMIN_PASS = process.env.ADMIN_PASS;
+  const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+  const ADMIN_PASS = process.env.ADMIN_PASS || 'secretpassword';
 
   if (username === ADMIN_USER && password === ADMIN_PASS) {
     // Serialize a secure cookie
