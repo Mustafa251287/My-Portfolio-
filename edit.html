@@ -348,10 +348,10 @@
               if (response.status === 401) {
         alert("Plz Login");
         window.location.href = '/login'; // Redirect on frontend
-    }
-
+              }
+                 const errorMessage = await response.json();
                     throw new Error(
-                        `Update failed with status ${response.status}`
+                        `Update failed with status ${response.status} and error is ${errorMessage.error}`
                     );
                 }
 
