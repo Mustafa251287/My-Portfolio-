@@ -345,6 +345,11 @@
                 });
 
                 if (!response.ok) {
+              if (response.status === 401) {
+        alert("Plz Login");
+        window.location.href = '/login'; // Redirect on frontend
+    }
+
                     throw new Error(
                         `Update failed with status ${response.status}`
                     );
